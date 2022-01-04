@@ -12,7 +12,7 @@
 #include <signal.h>
 #include <sys/select.h>
 
-#define FIFO "/tmp/bar2.fifo"
+#define FIFO "/tmp/bar.fifo"
 #define HASHSIZE 4096
 #define SIZE 128
 #define BAR_SIZE 512
@@ -34,7 +34,10 @@ int system_pipe(char* file, char *argv[], char * return_buffer)
 	int fd[2];
 	if(return_buffer != NULL)
 	{
-		pipe(fd);
+		if(pipe(fd) != 0)
+		{
+			perror("pipe");
+		}
 	}
 	if(fork() == 0)
 	{
@@ -63,7 +66,10 @@ int system_pipe(char* file, char *argv[], char * return_buffer)
 	{
 		close(fd[1]);
 		memset(return_buffer, '\0', SIZE);
-		read(fd[0], return_buffer, SIZE);
+		if(read(fd[0], return_buffer, SIZE) < 0)
+		{
+			perror("read");
+		}
 		close(fd[0]);
 	}
 	return return_value;
@@ -71,7 +77,6 @@ int system_pipe(char* file, char *argv[], char * return_buffer)
 
 int timeout(int fd, fd_set * fds, struct timeval * tval, time_t * rtime)
 {
-	*rtime = time(NULL);
 	tval->tv_sec = R_INTERVAL - *rtime%R_INTERVAL;
 	/* printf("timeout set for.. %ld\n", tval->tv_sec); */
 	FD_ZERO(fds);

@@ -21,9 +21,7 @@ temp () {
 }
 
 network () {
-	interface=$(ip addr | awk '/ UP /{print $2}' | tr -d ':')
-	[ -n "$interface" ] && network=$(wpa_cli -i "$interface" status | grep\
-		-E '^ssid' | sed 's/ssid=//')
+	network=$(wpa_cli status | grep -E '^ssid' | sed 's/ssid=//')
 	[ -z "$network" ] && network="" && exit 0
 	printf "%s" "$network" 
 	exit

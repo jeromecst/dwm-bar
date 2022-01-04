@@ -11,8 +11,6 @@ unsigned hash(char *s)
 
 void print_hash()
 {
-
-
 	char * list[RELOAD+1] = {"date", "battery", "network", "volume", "temp", "disk", "mail", "music", "mic", "reload"};
 	for(int i = 0; i < RELOAD; i++)
 	{

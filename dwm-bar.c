@@ -93,6 +93,7 @@ void update_mic()
 
 void update_bar()
 {
+	update_date();
 	update_mic();
 	update_music();
 	update_mail();
@@ -100,7 +101,6 @@ void update_bar()
 	update_temp();
 	update_volume();
 	update_battery();
-	update_date();
 	update_network();
 }
 
@@ -121,12 +121,15 @@ void make_bar(char * buf)
 
 void display_bar(char * buf)
 {
-	char *arg_xsetroot[] = {"xsetroot", "-name", buf, NULL};
+	char final_buffer[BAR_SIZE];
+	sprintf(final_buffer, " %s ", buf);
+	char *arg_xsetroot[] = {"xsetroot", "-name", final_buffer, NULL};
 	system_pipe("/usr/bin/xsetroot", arg_xsetroot, NULL);
 }
 
 int main()
 {
+	rtime = time(NULL);
 	char bar_buf[BAR_SIZE];
 	init_strings();
 	signal(SIGINT, close_handler);
@@ -146,6 +149,7 @@ int main()
 	update_bar();
 	while(1)
 	{
+		rtime = time(NULL);
 		make_bar(bar_buf);
 		display_bar(bar_buf);
 		int ss = timeout(fd, &fds, &tval, &rtime);
@@ -153,14 +157,18 @@ int main()
 		{
 			perror("select");
 		}
+		/* timeout */
 		else if( ss == 0)
 		{
-			/* timeout */
 			update_bar();
 		}
+		/* reload specific item */
 		else if( FD_ISSET(fd, &fds) != 0 )
 		{
-			read(fd, &reload, sizeof(reload));
+			if(read(fd, &reload, sizeof(reload)) < 0)
+			{
+				perror("read");
+			}
 			switch(reload)
 			{
 				case(DATE): update_date(); break;

@@ -1,16 +1,20 @@
 CFLAGS=-Wall -Wextra -O3
 
-all: bar update_bar
+all: dwm-bar update-dwm-bar
 
-bar: bar.o
+dwm-bar: dwm-bar.o
 
-update_bar: update_bar.o
+update-dwm-bar: update-dwm-bar.o
 
 clean:
 	rm *.o
 
-install: bar update_bar
-	install -m 555 update_bar /usr/local/bin/
-	install -m 555 bar /usr/local/bin/
-	install -m 555 bar_helper.sh /usr/local/bin/
+install: bar update-dwm-bar
+	install -m 555 update-dwm-bar /usr/local/bin/
+	install -m 555 dwm-bar /usr/local/bin/
+	install -m 555 bar-helper.sh /usr/local/bin/
 
+uninstall:
+	rm -f /usr/local/bin/update-dwm-bar
+	rm -f /usr/local/bin/dwm-bar
+	rm -f /usr/local/bin/bar-helper.sh
