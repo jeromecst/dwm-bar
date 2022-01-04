@@ -46,6 +46,12 @@ int system_pipe(char* file, char *argv[], char * return_buffer)
 				perror("dup2");
 			}
 		}
+		else
+		{
+			close(0);
+			close(1);
+			close(2);
+		}
 		if(execv(file, argv) == -1)
 		{
 			perror("execv");
@@ -67,11 +73,10 @@ int timeout(int fd, fd_set * fds, struct timeval * tval, time_t * rtime)
 {
 	*rtime = time(NULL);
 	tval->tv_sec = R_INTERVAL - *rtime%R_INTERVAL;
-	printf("timeout set for.. %ld\n", tval->tv_sec);
+	/* printf("timeout set for.. %ld\n", tval->tv_sec); */
 	FD_ZERO(fds);
 	FD_SET(fd, fds);
 	return select(fd + 1, fds, NULL, NULL, tval);
 }
-
 
 #endif
