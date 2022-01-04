@@ -10,18 +10,22 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <sys/select.h>
 
 #define FIFO "/tmp/bar2.fifo"
 #define HASHSIZE 4096
-#define SIZE 1024
+#define SIZE 128
+#define R_INTERVAL 60
 
-#define RELOAD 0
-#define VOLUME 1
-#define MUTE 2
-#define BATTERY 3
-#define NETWORK 4
-#define MIC 5
+#define DATE 0
+#define BATTERY 1
+#define NETWORK 2
+#define VOLUME 3
+#define TEMP 4
+#define DISK 5
 #define MAIL 6
 #define MUSIC 7
+#define MIC 8
+#define RELOAD 9
 
 #endif

@@ -11,7 +11,9 @@ unsigned hash(char *s)
 
 void print_hash()
 {
-	char * list[8] = {"reload", "volume", "mute", "battery", "network", "mic", "mail", "music"};
+
+
+	char", "* list[8] = {"date", "battery", "network", "volume", "temp", "disk", "mail", "music", "mic", "reload"};
 	for(int i = 0; i < 8; i++)
 	{
 		printf("%s -> %u\n", list[i], hash(list[i]));
@@ -22,14 +24,14 @@ int hash_to_code(unsigned hash)
 {
 	switch(hash)
 	{
-		case(409): return RELOAD; //reload 
-		case(1818): return VOLUME; //volume 
-		case(537): return MUTE; //mute 
-		case(3597): return BATTERY; //battery 
-		case(2606): return NETWORK; //network 
-		case(1607): return MIC; //mic 
-		case(1463): return MAIL; //mail 
-		case(3621): return MUSIC; //music 
+		case(409): return RELOAD;
+		case(1818): return VOLUME;
+		case(537): return MUTE;
+		case(3597): return BATTERY;
+		case(2606): return NETWORK;
+		case(1607): return MIC;
+		case(1463): return MAIL;
+		case(3621): return MUSIC;
 		default: exit(1);
 	}
 }
