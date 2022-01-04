@@ -15,6 +15,7 @@
 #define FIFO "/tmp/bar2.fifo"
 #define HASHSIZE 4096
 #define SIZE 128
+#define BAR_SIZE 512
 #define R_INTERVAL 60
 
 #define DATE 0
@@ -27,5 +28,50 @@
 #define MUSIC 7
 #define MIC 8
 #define RELOAD 9
+
+int system_pipe(char* file, char *argv[], char * return_buffer)
+{
+	int fd[2];
+	if(return_buffer != NULL)
+	{
+		pipe(fd);
+	}
+	if(fork() == 0)
+	{
+		if(return_buffer != NULL)
+		{
+			close(fd[0]);
+			if (dup2(fd[1], STDOUT_FILENO) == -1)
+			{
+				perror("dup2");
+			}
+		}
+		if(execv(file, argv) == -1)
+		{
+			perror("execv");
+		}
+	}
+	int return_value;
+	wait(&return_value);
+	if(return_buffer != NULL)
+	{
+		close(fd[1]);
+		memset(return_buffer, '\0', SIZE);
+		read(fd[0], return_buffer, SIZE);
+		close(fd[0]);
+	}
+	return return_value;
+}
+
+int timeout(int fd, fd_set * fds, struct timeval * tval, time_t * rtime)
+{
+	*rtime = time(NULL);
+	tval->tv_sec = R_INTERVAL - *rtime%R_INTERVAL;
+	printf("timeout set for.. %ld\n", tval->tv_sec);
+	FD_ZERO(fds);
+	FD_SET(fd, fds);
+	return select(fd + 1, fds, NULL, NULL, tval);
+}
+
 
 #endif

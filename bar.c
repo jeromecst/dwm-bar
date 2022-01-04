@@ -4,41 +4,14 @@ int fd;
 struct tm * tm_time;
 time_t rtime;
 char * mon[] = {"Jan",  "Feb",  "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-char * bar[7];
-/*
-date
-network
-volume
-disk
-mic
-temp
-battery
-*/
+char * bar[RELOAD+1];
 
-int system_pipe(char* file, char *argv[], char * return_buffer)
+void init_strings()
 {
-	int fd[2];
-	pipe(fd);
-	if(fork() == 0)
+	for(int i = 0; i < RELOAD+1; i++)
 	{
-		if (dup2(STDOUT_FILENO, fd[0]) == -1)
-		{
-			perror("dup2");
-		}
-		if(execv(file, argv) == -1)
-		{
-			perror("execv");
-		}
+		bar[i] = (char *) malloc(SIZE*sizeof(char));
 	}
-	int return_value;
-	wait(&return_value);
-	if(return_buffer != NULL)
-	{
-		memset(return_buffer, '\0', SIZE);
-		read(fd[1], return_buffer, SIZE);
-	}
-	close(fd[0]);
-	return return_value;
 }
 
 void close_handler()
@@ -51,14 +24,46 @@ void close_handler()
 void update_date()
 {
 	tm_time = localtime(&rtime);
-	sprintf(buf, "%02d-%s %02d:%02d", tm_time->tm_mday, mon[tm_time->tm_mon], tm_time->tm_hour, tm_time->tm_min);
+	sprintf(bar[0], "%02d-%s %02d:%02d", tm_time->tm_mday, mon[tm_time->tm_mon], tm_time->tm_hour, tm_time->tm_min);
 }
 
-void make_bar()
+void update_network()
 {
-	get_date(buffer);
-	printf("%s\n", buffer);
+	char * arg[] = {"bar_helper.sh", "update_network", NULL};
+	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[NETWORK]);
 }
+
+void update_battery()
+{
+	char * arg[] = {"which", "acpi", NULL};
+	if(system_pipe("/usr/bin/which", arg, NULL) == 0)
+	{
+		char * arg2[] = {"bar_helper.sh", "update_battery", NULL};
+		system_pipe("/usr/local/bin/bar_helper.sh", arg2, bar[BATTERY]);
+	}
+}
+
+void update_bar()
+{
+	update_battery();
+	update_date();
+	update_network();
+}
+
+
+void make_bar(char * buf)
+{
+	memset(buf, '\0', BAR_SIZE);
+	for(int i = RELOAD; i >= 0; i--)
+	{
+		if(strlen(bar[i]) > 0)
+		{
+			strcat(buf, bar[i]);
+			if(i != 0) strcat(buf, " | ");
+		}
+	}
+}
+
 
 void display_bar(char * buf)
 {
@@ -66,24 +71,16 @@ void display_bar(char * buf)
 	system_pipe("/usr/bin/xsetroot", arg_xsetroot, NULL);
 }
 
-int timeout(int fd, fd_set * fds, struct timeval * tval)
-{
-	rtime = time(NULL);
-	tval->tv_sec = R_INTERVAL - rtime%R_INTERVAL;
-	printf("timeout set for.. %ld\n", tval->tv_sec);
-	FD_ZERO(fds);
-	FD_SET(fd, fds);
-	return select(fd + 1, fds, NULL, NULL, tval);
-}
-
 int main()
 {
+	char bar_buf[BAR_SIZE];
+	init_strings();
 	signal(SIGINT, close_handler);
 	struct timeval tval = {0, 0};
 	unsigned short reload;
 	unlink(FIFO);
 	fd_set fds;
-	if (mkfifo(FIFO, 0640)<0)
+	if (mkfifo(FIFO, 0600)<0)
 	{
 		exit(1);
 		perror("mkfifo");
@@ -94,25 +91,26 @@ int main()
 	}
 	while(1)
 	{
-		int ss = timeout(fd, &fds, &tval);
+		update_bar();
+		make_bar(bar_buf);
+		display_bar(bar_buf);
+		int ss = timeout(fd, &fds, &tval, &rtime);
 		if( ss < 0 )
 		{
 			perror("select");
 		}
-		if( ss == 0)
+		else if( ss == 0)
 		{
 			/* timeout */
 			printf("there is a timeout\n");
 		}
-		if( FD_ISSET(fd, &fds) )
+		else if( FD_ISSET(fd, &fds) != 0 )
 		{
 			/* manage reload */
 			reload = -1;
 			read(fd, &reload, sizeof(reload));
 			printf("reload code number: %d\n", reload);
 		}
-		make_bar();
-		display_bar();
 	}
 	close(fd);
 }
