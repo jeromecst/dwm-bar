@@ -7,9 +7,11 @@ dwm-bar: dwm-bar.o
 update-dwm-bar: update-dwm-bar.o
 
 clean:
-	rm *.o
+	rm -f *.o
+	rm -f dwm-bar
+	rm -f update-dwm-bar
 
-install: bar update-dwm-bar
+install: dwm-bar update-dwm-bar
 	install -m 555 update-dwm-bar /usr/local/bin/
 	install -m 555 dwm-bar /usr/local/bin/
 	install -m 555 bar-helper.sh /usr/local/bin/

@@ -1,5 +1,5 @@
-bar
-bar.o
+dwm-bar
+dwm-bar.o
 tags
-update_bar
-update_bar.o
+update-dwm-bar
+update-dwm-bar.o
