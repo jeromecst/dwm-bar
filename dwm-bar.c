@@ -31,8 +31,8 @@ void update_date()
 void update_network()
 {
 	memset(bar[NETWORK], '\0', SIZE);
-	char * arg[] = {"bar_helper.sh", "network", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[NETWORK]);
+	char * arg[] = {"bar-helper.sh", "network", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[NETWORK]);
 }
 
 void update_battery()
@@ -41,37 +41,37 @@ void update_battery()
 	char * arg[] = {"which", "acpi", NULL};
 	if(system_pipe("/usr/bin/which", arg, NULL) == 0)
 	{
-		char * arg2[] = {"bar_helper.sh", "battery", NULL};
-		system_pipe("/usr/local/bin/bar_helper.sh", arg2, bar[BATTERY]);
+		char * arg2[] = {"bar-helper.sh", "battery", NULL};
+		system_pipe("/usr/local/bin/bar-helper.sh", arg2, bar[BATTERY]);
 	}
 }
 
 void update_volume()
 {
 	memset(bar[VOLUME], '\0', SIZE);
-	char * arg[] = {"bar_helper.sh", "volume", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[VOLUME]);
+	char * arg[] = {"bar-helper.sh", "volume", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[VOLUME]);
 }
 
 void update_temp()
 {
 	memset(bar[TEMP], '\0', SIZE);
-	char * arg[] = {"bar_helper.sh", "temp", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[TEMP]);
+	char * arg[] = {"bar-helper.sh", "temp", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[TEMP]);
 }
 
 void update_disk()
 {
 	memset(bar[DISK], '\0', SIZE);
-	char * arg[] = {"bar_helper.sh", "disk", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[DISK]);
+	char * arg[] = {"bar-helper.sh", "disk", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[DISK]);
 }
 
 void update_mail()
 {
 	memset(bar[MAIL], '\0', SIZE);
-	char * arg[] = {"bar_helper.sh", "mail", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[MAIL]);
+	char * arg[] = {"bar-helper.sh", "mail", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MAIL]);
 }
 
 void update_music()
@@ -80,15 +80,15 @@ void update_music()
 	char * arg2[] = {"cmus-remote", "-Q", NULL};
 	if(system_pipe("/usr/bin/cmus-remote", arg2, NULL) == 0)
 	{
-		char * arg[] = {"bar_helper.sh", "music", NULL};
-		system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[MUSIC]);
+		char * arg[] = {"bar-helper.sh", "music", NULL};
+		system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MUSIC]);
 	}
 }
 
 void update_mic()
 {
-	char * arg[] = {"bar_helper.sh", "mic", NULL};
-	system_pipe("/usr/local/bin/bar_helper.sh", arg, bar[MIC]);
+	char * arg[] = {"bar-helper.sh", "mic", NULL};
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MIC]);
 }
 
 void update_bar()
