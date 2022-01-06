@@ -53,6 +53,24 @@ void update_volume()
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[VOLUME]);
 }
 
+void manually_switch_volume(unsigned short action)
+{
+	/* if volume is not set, fallback to default volume handler */
+	int len = 0;
+	static int counter = FBCK;
+	if(counter == 0) counter = FBCK;
+	if((len = strlen(bar[VOLUME])) < 2 || --counter == 0) return update_volume();
+	bar[VOLUME][len-1] = '\0';
+	unsigned short volume_number = atoi(bar[VOLUME]);
+	switch(action)
+	{
+		case(VOLUP): ++volume_number; break;
+		case(VOLDOWN): volume_number == 0 ? 0 : --volume_number; break;
+	}
+	memset(bar[VOLUME], '\0', SIZE);
+	sprintf(bar[VOLUME], "%u%%", volume_number);
+}
+
 void update_temp()
 {
 	memset(bar[TEMP], '\0', SIZE);
@@ -174,6 +192,9 @@ int main()
 				case(DATE): update_date(); break;
 				case(BATTERY): update_battery(); break;
 				case(NETWORK): update_network(); break;
+				case(VOLUP):
+				case(VOLDOWN): manually_switch_volume(reload); break;
+				case(VOLTOGGLE): 				
 				case(VOLUME): update_volume(); break;
 				case(TEMP): update_temp(); break;
 				case(DISK): update_disk(); break;

@@ -17,6 +17,7 @@
 #define SIZE 128
 #define BAR_SIZE 512
 #define R_INTERVAL 60
+#define FBCK 30
 
 #define DATE 0
 #define BATTERY 1
@@ -28,6 +29,9 @@
 #define MUSIC 7
 #define MIC 8
 #define RELOAD 9
+#define VOLUP 10
+#define VOLDOWN 11
+#define VOLTOGGLE 12
 
 int system_pipe(char* file, char *argv[], char * return_buffer)
 {
