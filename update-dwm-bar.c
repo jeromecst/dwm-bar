@@ -30,11 +30,31 @@ int hash_to_code(unsigned hash)
 		case(3485): return DISK;
 		case(1463): return MAIL;
 		case(3621): return MUSIC;
-		case(1607): return MIC;
+		case(1607): 
+			    {
+				    char * arg[] = {"pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle", NULL};
+				    system_pipe("/usr/bin/pactl", arg, NULL);
+			    }
+			    return MIC;
 		case(409): return RELOAD;
-		case(3758): return VOLUP;
-		case(3061): return VOLDOWN;
-		case(2535): return VOLTOGGLE;
+		case(3758): 
+			   {
+				   char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+1%", NULL};
+				   system_pipe("/usr/bin/pactl", arg, NULL);
+			   }
+			   return VOLUP;
+		case(3061): 
+			   {
+				   char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-1%", NULL};
+				   system_pipe("/usr/bin/pactl", arg, NULL);
+			   }
+			   return VOLDOWN;
+		case(2535): 
+			   {
+				   char * arg[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL};
+				   system_pipe("/usr/bin/pactl", arg, NULL);
+			   }
+			   return VOLTOGGLE;
 		default: exit(1);
 	}
 }

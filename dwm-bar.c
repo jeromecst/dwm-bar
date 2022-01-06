@@ -31,14 +31,14 @@ void update_date()
 void update_network()
 {
 	memset(bar[NETWORK], '\0', SIZE);
-	char * arg[] = {"bar-helper.sh", "network", NULL};
+	static char * arg[] = {"bar-helper.sh", "network", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[NETWORK]);
 }
 
 void update_battery()
 {
 	memset(bar[BATTERY], '\0', SIZE);
-	char * arg[] = {"which", "acpi", NULL};
+	static char * arg[] = {"which", "acpi", NULL};
 	if(system_pipe("/usr/bin/which", arg, NULL) == 0)
 	{
 		char * arg2[] = {"bar-helper.sh", "battery", NULL};
@@ -49,7 +49,7 @@ void update_battery()
 void update_volume()
 {
 	memset(bar[VOLUME], '\0', SIZE);
-	char * arg[] = {"bar-helper.sh", "volume", NULL};
+	static char * arg[] = {"bar-helper.sh", "volume", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[VOLUME]);
 }
 
@@ -74,38 +74,38 @@ void manually_switch_volume(unsigned short action)
 void update_temp()
 {
 	memset(bar[TEMP], '\0', SIZE);
-	char * arg[] = {"bar-helper.sh", "temp", NULL};
+	static char * arg[] = {"bar-helper.sh", "temp", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[TEMP]);
 }
 
 void update_disk()
 {
 	memset(bar[DISK], '\0', SIZE);
-	char * arg[] = {"bar-helper.sh", "disk", NULL};
+	static char * arg[] = {"bar-helper.sh", "disk", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[DISK]);
 }
 
 void update_mail()
 {
 	memset(bar[MAIL], '\0', SIZE);
-	char * arg[] = {"bar-helper.sh", "mail", NULL};
+	static char * arg[] = {"bar-helper.sh", "mail", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MAIL]);
 }
 
 void update_music()
 {
 	memset(bar[MUSIC], '\0', SIZE);
-	char * arg2[] = {"cmus-remote", "-Q", NULL};
+	static char * arg2[] = {"cmus-remote", "-Q", NULL};
 	if(system_pipe("/usr/bin/cmus-remote", arg2, NULL) == 0)
 	{
-		char * arg[] = {"bar-helper.sh", "music", NULL};
+		static char * arg[] = {"bar-helper.sh", "music", NULL};
 		system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MUSIC]);
 	}
 }
 
 void update_mic()
 {
-	char * arg[] = {"bar-helper.sh", "mic", NULL};
+	static char * arg[] = {"bar-helper.sh", "mic", NULL};
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MIC]);
 }
 
@@ -139,7 +139,7 @@ void make_bar(char * buf)
 
 void display_bar(char * buf)
 {
-	char final_buffer[BAR_SIZE];
+	static char final_buffer[BAR_SIZE];
 	sprintf(final_buffer, " %s ", buf);
 	char *arg_xsetroot[] = {"xsetroot", "-name", final_buffer, NULL};
 	system_pipe("/usr/bin/xsetroot", arg_xsetroot, NULL);

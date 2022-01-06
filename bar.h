@@ -33,7 +33,7 @@
 #define VOLDOWN 11
 #define VOLTOGGLE 12
 
-int system_pipe(char* file, char *argv[], char * return_buffer)
+int system_pipe(const char* file, char *argv[], char * return_buffer)
 {
 	int fd[2];
 	if(return_buffer != NULL)
