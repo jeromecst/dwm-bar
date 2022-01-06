@@ -33,9 +33,9 @@
 #define VOLDOWN 11
 #define VOLTOGGLE 12
 
-int system_pipe(const char* file, char *argv[], char * return_buffer)
+static int system_pipe(const char* file, char *argv[], char * return_buffer)
 {
-	int fd[2];
+	static int fd[2];
 	if(return_buffer != NULL)
 	{
 		if(pipe(fd) != 0)
@@ -82,7 +82,6 @@ int system_pipe(const char* file, char *argv[], char * return_buffer)
 int timeout(int fd, fd_set * fds, struct timeval * tval, time_t * rtime)
 {
 	tval->tv_sec = R_INTERVAL - *rtime%R_INTERVAL;
-	/* printf("timeout set for.. %ld\n", tval->tv_sec); */
 	FD_ZERO(fds);
 	FD_SET(fd, fds);
 	return select(fd + 1, fds, NULL, NULL, tval);

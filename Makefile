@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -O3
+CFLAGS=-Wall -Wextra -O3 -march=native
 
 all: dwm-bar update-dwm-bar
 
