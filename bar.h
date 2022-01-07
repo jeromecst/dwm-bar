@@ -1,5 +1,5 @@
-#ifndef BAR
-#define BAR
+#ifndef BARH
+#define BARH
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,22 +18,54 @@
 #define BAR_SIZE 512
 #define R_INTERVAL 60
 #define FBCK 30
+#define NFLAG 14
+#define DATE 0x1
+#define BATTERY 0x2
+#define NETWORK 0x4
+#define VOLUME 0x8
+#define TEMP 0x10
+#define DISK 0x20
+#define MAIL 0x40
+#define MUSIC 0x80
+#define MIC 0x100
+#define BACKLIGHT 0x200
+#define RELOAD 0x400
+#define UP 0x800
+#define DOWN 0x1000
+#define TOGGLE 0x2000
 
-#define DATE 0
-#define BATTERY 1
-#define NETWORK 2
-#define VOLUME 3
-#define TEMP 4
-#define DISK 5
-#define MAIL 6
-#define MUSIC 7
-#define MIC 8
-#define RELOAD 9
-#define VOLUP 10
-#define VOLDOWN 11
-#define VOLTOGGLE 12
+unsigned int flag_to_idx(unsigned short a)
+{
+	for(unsigned int i = 0; i < sizeof(unsigned short)*8; i++)
+	{
+		if(a & 1) return i;
+		a >>= 1;
+	}
+	return 0;
+}
 
-static int system_pipe(const char* file, char *argv[], char * return_buffer)
+unsigned short idx_to_flag(unsigned a)
+{
+	static unsigned short flag;
+	flag = 1;
+	for(unsigned i = 0; i  < a; i++)
+	{
+		flag <<= 1;
+	}
+	return flag;
+}
+
+unsigned short get_first_flag(unsigned a)
+{
+	for(unsigned int i = 0; i < sizeof(unsigned short)*8; i++)
+	{
+		if(a & 1) return i;
+		a >>= 1;
+	}
+	return 0;
+}
+
+int system_pipe(const char* file, char *argv[], char * return_buffer)
 {
 	static int fd[2];
 	if(return_buffer != NULL)

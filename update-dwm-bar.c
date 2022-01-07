@@ -11,65 +11,73 @@ unsigned hash(char *s)
 
 void print_hash()
 {
-	char * list[RELOAD+4] = {"date", "battery", "network", "volume", "temp", "disk", "mail", "music", "mic", "reload", "volup", "voldown", "voltoggle"};
-	for(int i = 0; i < RELOAD + 4; i++)
+	char * list[NFLAG] = {"date", "battery", "network", "volume",
+		"temp", "disk", "mail", "music", "mic", "backlight", "reload",
+		"up", "down", "toggle"};
+	for(int i = 0; i < NFLAG; i++)
 	{
 		printf("case(%u): return %s;\n", hash(list[i]), list[i]);
 	}
 }
 
-int hash_to_code(unsigned hash)
+int hash_to_code(unsigned hash, unsigned flag)
 {
 	switch(hash)
 	{
 		case(4014): return DATE;
 		case(3597): return BATTERY;
 		case(2606): return NETWORK;
-		case(1818): return VOLUME;
+		case(1818): 
+			    if(flag & TOGGLE)
+			    {
+				    char * arg[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL};
+				    system_pipe("/usr/bin/pactl", arg, NULL);
+			    }
+			    if(flag & UP)
+			    {
+				    char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+1%", NULL};
+				    system_pipe("/usr/bin/pactl", arg, NULL);
+			    }
+			    if(flag & DOWN)
+			    {
+				    char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-1%", NULL};
+				    system_pipe("/usr/bin/pactl", arg, NULL);
+			    }
+			    return VOLUME;
 		case(980): return TEMP;
 		case(3485): return DISK;
 		case(1463): return MAIL;
 		case(3621): return MUSIC;
 		case(1607): 
-			    {
-				    char * arg[] = {"pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle", NULL};
-				    system_pipe("/usr/bin/pactl", arg, NULL);
-			    }
+			    printf("mute sound\n");
+			    char * arg[] = {"pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle", NULL};
+			    system_pipe("/usr/bin/pactl", arg, NULL);
 			    return MIC;
+		case(2191):
+			    /* do the backlight magic */
+			    return BACKLIGHT;
 		case(409): return RELOAD;
-		case(3758): 
-			   {
-				   char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+1%", NULL};
-				   system_pipe("/usr/bin/pactl", arg, NULL);
-			   }
-			   return VOLUP;
-		case(3061): 
-			   {
-				   char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-1%", NULL};
-				   system_pipe("/usr/bin/pactl", arg, NULL);
-			   }
-			   return VOLDOWN;
-		case(2535): 
-			   {
-				   char * arg[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL};
-				   system_pipe("/usr/bin/pactl", arg, NULL);
-			   }
-			   return VOLTOGGLE;
-		default: exit(1);
+		case(3739): return UP;
+		case(1186): return DOWN;
+		case(2900): return TOGGLE;
+		default: 
+			    printf("hash %d not found\n", hash);
+			    exit(1);
 	}
 }
 
 
 int main(int argc, char ** argv)
 {
-	printf("%d\n", RELOAD);
 	if(argc < 2)
 	{
 		print_hash();
 		return 1;
 	}
-	int update_code = hash_to_code(hash(argv[1]));
-	printf("%s → %d(%d)\n", argv[1], hash(argv[1]), update_code);
+	unsigned update_code = 0;
+	if(argc > 2)
+		update_code |= hash_to_code(hash(argv[2]), update_code);
+	update_code |= hash_to_code(hash(argv[1]), update_code);
 	int fd = open(FIFO, O_WRONLY);
 	if(fd < 0)
 	{
