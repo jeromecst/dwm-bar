@@ -116,11 +116,6 @@ static void update_mic()
 	system_pipe("/usr/local/bin/bar-helper.sh", arg, get_bar(MIC));
 }
 
-static void update_brightness()
-{
-/* TODO: show only when changing brightness, let it for 1sec*/
-}
-
 static void update_bar()
 {
 	update_date();
