@@ -20,42 +20,20 @@ void print_hash()
 	}
 }
 
-int hash_to_code(unsigned hash, unsigned flag)
+int hash_to_code(unsigned hash)
 {
 	switch(hash)
 	{
 		case(4014): return DATE;
 		case(3597): return BATTERY;
 		case(2606): return NETWORK;
-		case(1818): 
-			    if(flag & TOGGLE)
-			    {
-				    char * arg[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle", NULL};
-				    system_pipe("/usr/bin/pactl", arg, NULL);
-			    }
-			    if(flag & UP)
-			    {
-				    char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+1%", NULL};
-				    system_pipe("/usr/bin/pactl", arg, NULL);
-			    }
-			    if(flag & DOWN)
-			    {
-				    char * arg[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-1%", NULL};
-				    system_pipe("/usr/bin/pactl", arg, NULL);
-			    }
-			    return VOLUME;
+		case(1818): return VOLUME;
 		case(980): return TEMP;
 		case(3485): return DISK;
 		case(1463): return MAIL;
 		case(3621): return MUSIC;
-		case(1607): 
-			    printf("mute sound\n");
-			    char * arg[] = {"pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle", NULL};
-			    system_pipe("/usr/bin/pactl", arg, NULL);
-			    return MIC;
-		case(2191):
-			    /* do the backlight magic */
-			    return BACKLIGHT;
+		case(1607): return MIC;
+		case(2191): return BACKLIGHT;
 		case(409): return RELOAD;
 		case(3739): return UP;
 		case(1186): return DOWN;
@@ -75,9 +53,11 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 	unsigned update_code = 0;
-	if(argc > 2)
-		update_code |= hash_to_code(hash(argv[2]), update_code);
-	update_code |= hash_to_code(hash(argv[1]), update_code);
+	for(int i = 1; i < argc; i++)
+	{
+		update_code |= hash_to_code(hash(argv[i]));
+	}
+	printf("update code is %x\n", update_code);
 	int fd = open(FIFO, O_WRONLY);
 	if(fd < 0)
 	{
@@ -88,7 +68,6 @@ int main(int argc, char ** argv)
 	if(size <= 0)
 	{
 		perror("write");
-		exit(1);
 	}
 	close(fd);
 }

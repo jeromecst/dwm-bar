@@ -57,12 +57,13 @@ static void update_volume(unsigned short action)
 	static int len = 0;
 	if(counter == 0) counter = FBCK;
 	/* if volume is not set, fallback to default volume handler */
-	if((len = strlen(get_bar(VOLUME))) < 2 || --counter == 0)
+	if(!(action & (UP | DOWN)) || (len = strlen(get_bar(VOLUME))) < 2 || --counter == 0)
 	{
 		volume_number = -1;
 		memset(get_bar(VOLUME), '\0', SIZE);
 		static char * arg[] = {"bar-helper.sh", "volume", NULL};
 		system_pipe("/usr/local/bin/bar-helper.sh", arg, get_bar(VOLUME));
+		return;
 	}
 	if(volume_number < 0)
 	{
@@ -128,7 +129,7 @@ static void update_bar()
 	update_mail();
 	update_disk();
 	update_temp();
-	update_volume(0);
+	update_volume(RELOAD);
 	update_battery();
 	update_network();
 }
@@ -199,7 +200,10 @@ int main()
 			{
 				perror("read");
 			}
-			switch(idx_to_flag(flag_to_idx(reload)))
+			printf("received flag %d", reload);
+			int first_flag = idx_to_flag(flag_to_idx(reload));
+			printf(" first flag is %d\n", first_flag);
+			switch(first_flag)
 			{
 				case(DATE): update_date(); break;
 				case(BATTERY): update_battery(); break;
