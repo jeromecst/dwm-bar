@@ -34,6 +34,14 @@
 #define DOWN 0x1000
 #define TOGGLE 0x2000
 
+#define NORMAL ''
+#define RED ''
+#define GREEN ''
+#define YELLOW ''
+#define BLUE ''
+#define MAGENTA ''
+#define CYAN ''
+
 unsigned int flag_to_idx(unsigned short a)
 {
 	for(unsigned int i = 0; i < sizeof(unsigned short)*8; i++)

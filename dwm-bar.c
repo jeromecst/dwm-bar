@@ -129,20 +129,20 @@ static void update_bar()
 	update_network();
 }
 
-
 static void make_bar(char * buf)
 {
+	static char colors[] = {GREEN, YELLOW, CYAN};
 	memset(buf, '\0', BAR_SIZE);
 	for(int i = RELOAD; i >= 0; i--)
 	{
 		if(strlen(bar[i]) > 0)
 		{
+			/* strncat(buf, &colors[i%3],sizeof(char)); */
 			strcat(buf, bar[i]);
 			if(i != 0) strcat(buf, " ");
 		}
 	}
 }
-
 
 static void display_bar(char * buf)
 {
