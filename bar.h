@@ -122,6 +122,7 @@ int system_pipe(const char* file, char *argv[], char * return_buffer)
 int timeout(int fd, fd_set * fds, struct timeval * tval, time_t * rtime)
 {
 	tval->tv_sec = R_INTERVAL - *rtime%R_INTERVAL;
+	tval->tv_usec = 0;
 	FD_ZERO(fds);
 	FD_SET(fd, fds);
 	return select(fd + 1, fds, NULL, NULL, tval);
