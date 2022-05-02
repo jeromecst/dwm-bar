@@ -1,4 +1,7 @@
+CC?=gcc
 CFLAGS=-Wall -Wextra -O3 -march=native
+LIBS=-lX11
+LDFLAGS=$(LIBS)
 
 all: dwm-bar update-dwm-bar
 

@@ -14,16 +14,14 @@ void print_hash()
 	char * list[NFLAG] = {"date", "battery", "network", "volume",
 		"temp", "disk", "mail", "music", "mic", "backlight", "reload",
 		"up", "down", "toggle"};
-	for(int i = 0; i < NFLAG; i++)
-	{
+	for (int i = 0; i < NFLAG; i++) {
 		printf("case(%u): return %s;\n", hash(list[i]), list[i]);
 	}
 }
 
 int hash_to_code(unsigned hash)
 {
-	switch(hash)
-	{
+	switch (hash) {
 		case(4014): return DATE;
 		case(3597): return BATTERY;
 		case(2606): return NETWORK;
@@ -47,26 +45,22 @@ int hash_to_code(unsigned hash)
 
 int main(int argc, char ** argv)
 {
-	if(argc < 2)
-	{
+	if (argc < 2) {
 		print_hash();
 		return 1;
 	}
 	unsigned update_code = 0;
-	for(int i = 1; i < argc; i++)
-	{
+	for (int i = 1; i < argc; i++) {
 		update_code |= hash_to_code(hash(argv[i]));
 	}
 	printf("update code is %x\n", update_code);
 	int fd = open(FIFO, O_WRONLY);
-	if(fd < 0)
-	{
+	if (fd < 0) {
 		perror("open");
 		exit(1);
 	}
 	ssize_t size = write(fd, &update_code, sizeof(unsigned short));
-	if(size <= 0)
-	{
+	if (size <= 0) {
 		perror("write");
 	}
 	close(fd);

@@ -1,5 +1,6 @@
 #ifndef BARH
 #define BARH
+#include <X11/Xutil.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +12,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <sys/select.h>
+
 
 #define FIFO "/tmp/bar.fifo"
 #define HASHSIZE 4096
@@ -34,15 +36,7 @@
 #define DOWN 0x1000
 #define TOGGLE 0x2000
 
-#define NORMAL ''
-#define RED ''
-#define GREEN ''
-#define YELLOW ''
-#define BLUE ''
-#define MAGENTA ''
-#define CYAN ''
-
-#define get_bar(a) (bar[flag_to_idx(a)])
+#define GET_BAR(a) (bar[flag_to_idx(a)])
 
 unsigned int flag_to_idx(unsigned short a)
 {
@@ -75,7 +69,7 @@ int system_pipe(const char *file, char *argv[], char *return_buffer)
 {
 	static int fd[2];
 	if (return_buffer != NULL) {
-		if(pipe(fd) != 0)
+		if (pipe(fd) != 0)
 			perror("pipe");
 	}
 	if (fork() == 0) {
@@ -111,6 +105,28 @@ int timeout(int fd, fd_set *fds, struct timeval *tval, time_t *rtime)
 	FD_ZERO(fds);
 	FD_SET(fd, fds);
 	return select(fd + 1, fds, NULL, NULL, tval);
+}
+
+int xsetroot(const char *bar_name)
+{
+	static Display *dpy;
+	static int screen;
+	static Window root;
+
+	dpy = XOpenDisplay(NULL);
+	if (!dpy) {
+		fprintf(stderr, "unable to open display '%s'\n",
+				XDisplayName (NULL));
+		return 1;
+	}
+	screen = DefaultScreen(dpy);
+	root = RootWindow(dpy, screen);
+
+	/* Handle set name */
+	if (bar_name)
+		XStoreName(dpy, root, bar_name);
+	XCloseDisplay(dpy);
+	return 0;
 }
 
 #endif

@@ -1,14 +1,14 @@
 #!/bin/sh
 
-disk () { 
+disk () {
 	disk=$(df -h | awk '/ \/home$/{ print $4 }')
 	[ -z "$disk" ] && disk=$(df -h | awk '/ \/$/{ print $4 }')
 	printf "%s" "$disk"
 }
 
-mic() { 
+mic() {
 	pacmd list-sources | grep -A 15 '* index' | grep -qw 'muted: no' &&\
-		mic="mic" || mic="" 
+		mic="mic" || mic=""
 	printf "%s" "$mic"
 }
 
@@ -23,7 +23,7 @@ temp () {
 network () {
 	network=$(wpa_cli status | grep -E '^ssid' | sed 's/ssid=//')
 	[ -z "$network" ] && network="" && exit 0
-	printf "%s" "$network" 
+	printf "%s" "$network"
 	exit
 }
 
@@ -70,8 +70,8 @@ music () {
 	cmus_status=$(cmus-remote -Q 2>&1)
 	music_status=""
 	printf "%s" "$cmus_status" | grep -q "not running" && exit
-	if printf "%s" "$cmus_status" | grep -q "status playing" ;then 
-		music_status="playing" ; else 
+	if printf "%s" "$cmus_status" | grep -q "status playing"; then
+		music_status="playing"; else
 		music_status="pause"
 	fi
 	printf "%s" "$music_status"
