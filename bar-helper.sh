@@ -1,7 +1,7 @@
 #!/bin/sh
 
 disk () {
-	disk=$(df -h | awk '/ \/home$/{ print $4 }')
+	disk=$(df -hl --no-sync | awk '/home/{ print $4 }')
 	[ -z "$disk" ] && disk=$(df -h | awk '/ \/$/{ print $4 }')
 	printf "%s" "$disk"
 }
