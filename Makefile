@@ -1,13 +1,14 @@
 CC?=gcc
 CFLAGS=-Wall -Wextra -O3 -march=native
 LIBS=-lX11
-LDFLAGS=$(LIBS)
 
 all: dwm-bar update-dwm-bar
 
 dwm-bar: dwm-bar.o
+	$(CC) $(CFLAGS) -o $@ $? $(LIBS)
 
 update-dwm-bar: update-dwm-bar.o
+	$(CC) $(CFLAGS) -o $@ $? $(LIBS)
 
 clean:
 	rm -f *.o
