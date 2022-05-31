@@ -1,5 +1,8 @@
 #include "bar.h"
 
+#include <stdlib.h>
+#include <fcntl.h>
+
 unsigned hash(char *s)
 {
 	unsigned hashval;

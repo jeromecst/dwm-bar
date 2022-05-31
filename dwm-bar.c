@@ -1,5 +1,10 @@
 #include "bar.h"
 
+#include <stdlib.h>
+#include <fcntl.h>
+#include <time.h>
+#include <sys/stat.h>
+
 int fd;
 time_t rtime;
 char *bar[RELOAD+1];
