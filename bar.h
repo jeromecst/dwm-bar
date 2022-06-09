@@ -43,6 +43,7 @@ unsigned int flag_to_idx(unsigned short a)
 unsigned short idx_to_flag(unsigned a)
 {
 	static unsigned short flag;
+
 	flag = 1;
 	for (unsigned i = 0; i  < a; i++)
 		flag <<= 1;
@@ -52,15 +53,17 @@ unsigned short idx_to_flag(unsigned a)
 unsigned short get_first_flag(unsigned a)
 {
 	for (unsigned int i = 0; i < sizeof(unsigned short) * 8; i++) {
-		if(a & 1) return i;
+		if (a & 1) return i;
 		a >>= 1;
 	}
 	return 0;
 }
 
-int system_pipe(const char *file, char *argv[], char *return_buffer)
+int system_pipe(const char *file, char *const argv[], char *return_buffer)
 {
 	static int fd[2];
+	int return_value;
+
 	if (return_buffer != NULL) {
 		if (pipe(fd) != 0)
 			perror("pipe");
@@ -79,7 +82,6 @@ int system_pipe(const char *file, char *argv[], char *return_buffer)
 		if (execv(file, argv) == -1)
 			perror("execv");
 	}
-	int return_value;
 	wait(&return_value);
 	if (return_buffer != NULL) {
 		close(fd[1]);
