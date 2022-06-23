@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define FIFO "/tmp/bar.fifo"
 #define HASHSIZE 4096
@@ -79,8 +80,10 @@ int system_pipe(const char *file, char *const argv[], char *return_buffer)
 			close(1);
 			close(2);
 		}
-		if (execv(file, argv) == -1)
+		if (execv(file, argv) == -1) {
 			perror("execv");
+			exit(1);
+		}
 	}
 	wait(&return_value);
 	if (return_buffer != NULL) {
