@@ -28,10 +28,8 @@ network () {
 }
 
 volume () {
-	muted=$(pacmd list-sinks | grep -A 15 '* index' | awk '/muted:/{ print $2 }')
-	[ "$muted" = "yes" ] && volume="" && exit
-	volume=$(pacmd list-sinks |\
-		grep -A 10 '* index' | awk '/volume: front/{ print $5 }')
+	volume=$(pamixer --get-volume-human)
+	[ "$volume" = "muted" ] && volume="" && exit
 	printf "%s" "$volume"
 }
 
