@@ -22,6 +22,7 @@ temp () {
 
 network () {
 	network=$(wpa_cli status | grep -E '^ssid' | sed 's/ssid=//')
+	[ -z "$network" ] && network=$(iwctl station wlan0 show | awk '/Connected network/{print $3}')
 	[ -z "$network" ] && network="" && exit 0
 	printf "%s" "$network"
 	exit
