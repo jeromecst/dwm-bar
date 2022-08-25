@@ -14,47 +14,29 @@
 #define BAR_SIZE 512
 #define R_INTERVAL 60
 #define FBCK 30
-#define NFLAG 14
-#define DATE 0x1
-#define BATTERY 0x2
-#define NETWORK 0x4
-#define VOLUME 0x8
-#define TEMP 0x10
-#define DISK 0x20
-#define MAIL 0x40
-#define MUSIC 0x80
-#define MIC 0x100
-#define BACKLIGHT 0x200
-#define RELOAD 0x400
-#define UP 0x800
-#define DOWN 0x1000
-#define TOGGLE 0x2000
+#define NFLAG 15
 
-#define GET_BAR(a) (bar[flag_to_idx(a)])
+/* index of elements inside the bar array char*[NFLAG] */
+#define DATE 0
+#define BATTERY 1
+#define NETWORK 2
+#define VOLUME 3
+#define TEMP 4
+#define DISK 5
+#define MAIL 6
+#define MEM 7
+#define MUSIC 8
+#define MIC 9
+#define BACKLIGHT 10
+#define RELOAD 11
+#define UP 12
+#define DOWN 13
+#define TOGGLE 14
 
 unsigned int flag_to_idx(unsigned short a)
 {
 	for (unsigned int i = 0; i < sizeof(unsigned short) * 8; i++) {
 		if(a & 1) return i;
-		a >>= 1;
-	}
-	return 0;
-}
-
-unsigned short idx_to_flag(unsigned a)
-{
-	static unsigned short flag;
-
-	flag = 1;
-	for (unsigned i = 0; i  < a; i++)
-		flag <<= 1;
-	return flag;
-}
-
-unsigned short get_first_flag(unsigned a)
-{
-	for (unsigned int i = 0; i < sizeof(unsigned short) * 8; i++) {
-		if (a & 1) return i;
 		a >>= 1;
 	}
 	return 0;

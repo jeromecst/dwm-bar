@@ -29,7 +29,7 @@ static void update_date(void)
 	static char *const mon[] = {"Jan",  "Feb",  "Mar", "Apr", "May", "Jun",
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-	memset(GET_BAR(DATE), '\0', SIZE);
+	memset(bar[DATE], '\0', SIZE);
 	tm_time = localtime(&rtime);
 	sprintf(bar[0], "%02d-%s %02d:%02d", tm_time->tm_mday,
 			mon[tm_time->tm_mon], tm_time->tm_hour,
@@ -40,19 +40,27 @@ static void update_network(void)
 {
 	static char *const arg[] = {"bar-helper.sh", "network", NULL};
 
-	memset(GET_BAR(NETWORK), '\0', SIZE);
-	system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(NETWORK));
+	memset(bar[NETWORK], '\0', SIZE);
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[NETWORK]);
+}
+
+static void update_mem(void)
+{
+	static char *const arg[] = {"bar-helper.sh", "mem", NULL};
+
+	memset(bar[MEM], '\0', SIZE);
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MEM]);
 }
 
 static void update_battery(void)
 {
 	static char *const arg[] = {"which", "acpi", NULL};
 
-	memset(GET_BAR(BATTERY), '\0', SIZE);
+	memset(bar[BATTERY], '\0', SIZE);
 	if (system_pipe("/usr/bin/which", arg, NULL) == 0) {
 		static char *const arg2[] = {"bar-helper.sh", "battery", NULL};
 
-		system_pipe("/usr/local/bin/bar-helper.sh", arg2, GET_BAR(BATTERY));
+		system_pipe("/usr/local/bin/bar-helper.sh", arg2, bar[BATTERY]);
 	}
 }
 
@@ -65,60 +73,64 @@ static void update_volume(unsigned short action)
 	if (counter == 0)
 		counter = FBCK;
 	/* if volume is not set, fallback to default volume handler */
-	len = strlen(GET_BAR(VOLUME));
-	if (!(action & (UP | DOWN)) || len < 2 || --counter == 0) {
+	len = strlen(bar[VOLUME]);
+	if (action == VOLUME || len < 2 || --counter == 0) {
 		static char *const arg[] = {"bar-helper.sh", "volume", NULL};
 
 		volume_number = -1;
-		memset(GET_BAR(VOLUME), '\0', SIZE);
-		system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(VOLUME));
+		memset(bar[VOLUME], '\0', SIZE);
+		system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[VOLUME]);
 		return;
 	}
 	if (volume_number < 0) {
-		GET_BAR(VOLUME)[len-1] = '\0';
-		volume_number = atoi(GET_BAR(VOLUME));
+		bar[VOLUME][len-1] = '\0';
+		volume_number = atoi(bar[VOLUME]);
 	}
-	if (action & UP)
-		++volume_number;
-	else if (action & DOWN)
-		volume_number == 0 ? 0 : --volume_number;
-	memset(GET_BAR(VOLUME), '\0', SIZE);
-	sprintf(GET_BAR(VOLUME), "%u%%", volume_number);
+	memset(bar[VOLUME], '\0', SIZE);
+	switch (action) {
+	case (TOGGLE):
+		return;
+	case (DOWN):
+		volume_number == 0 ? 0 : --volume_number; break;
+	case (UP):
+		++volume_number; break;
+	}
+	sprintf(bar[VOLUME], "%u%%", volume_number);
 }
 
 static void update_temp(void)
 {
 	static char *const arg[] = {"bar-helper.sh", "temp", NULL};
 
-	memset(GET_BAR(TEMP), '\0', SIZE);
-	system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(TEMP));
+	memset(bar[TEMP], '\0', SIZE);
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[TEMP]);
 }
 
 static void update_disk(void)
 {
 	static char *const arg[] = {"bar-helper.sh", "disk", NULL};
 
-	memset(GET_BAR(DISK), '\0', SIZE);
-	system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(DISK));
+	memset(bar[DISK], '\0', SIZE);
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[DISK]);
 }
 
 static void update_mail(void)
 {
 	static char *const arg[] = {"bar-helper.sh", "mail", NULL};
 
-	memset(GET_BAR(MAIL), '\0', SIZE);
-	system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(MAIL));
+	memset(bar[MAIL], '\0', SIZE);
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MAIL]);
 }
 
 static void update_music(void)
 {
 	static char *const arg2[] = {"cmus-remote", "-Q", NULL};
 
-	memset(GET_BAR(MUSIC), '\0', SIZE);
+	memset(bar[MUSIC], '\0', SIZE);
 	if (system_pipe("/usr/bin/cmus-remote", arg2, NULL) == 0) {
 		static char *const arg[] = {"bar-helper.sh", "music", NULL};
 
-		system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(MUSIC));
+		system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MUSIC]);
 	}
 }
 
@@ -126,7 +138,7 @@ static void update_mic(void)
 {
 	static char *const arg[] = {"bar-helper.sh", "mic", NULL};
 
-	system_pipe("/usr/local/bin/bar-helper.sh", arg, GET_BAR(MIC));
+	system_pipe("/usr/local/bin/bar-helper.sh", arg, bar[MIC]);
 }
 
 static void update_bar(void)
@@ -140,6 +152,7 @@ static void update_bar(void)
 	update_volume(RELOAD);
 	update_battery();
 	update_network();
+	update_mem();
 }
 
 static void make_bar(char *buf)
@@ -166,8 +179,8 @@ int main(void)
 {
 	struct timeval tval = {0, 100 * 1000000};
 	char bar_buf[BAR_SIZE];
-	int first_flag, ss;
-	unsigned short reload;
+	int ss;
+	unsigned int reload;
 
 	rtime = time(NULL);
 	init_strings();
@@ -189,7 +202,10 @@ int main(void)
 		rtime = time(NULL);
 		make_bar(bar_buf);
 		display_bar(bar_buf);
+
+		/* calls select */
 		ss = timeout(fd, &fds, &tval, &rtime);
+
 		if (ss < 0)
 			perror("select");
 		/* timeout */
@@ -201,28 +217,37 @@ int main(void)
 		else if (FD_ISSET(fd, &fds) != 0) {
 			if (read(fd, &reload, sizeof(reload)) < 0)
 				perror("read");
-			first_flag = idx_to_flag(flag_to_idx(reload));
-			switch (first_flag) {
+			switch (reload) {
 			case(DATE):
-				update_date(); break;
+					update_date(); break;
 			case(BATTERY):
-				update_battery(); break;
+					update_battery(); break;
 			case(NETWORK):
-				update_network(); break;
-			case(VOLUME):
-				update_volume(reload); break;
+					update_network(); break;
 			case(TEMP):
 				update_temp(); break;
 			case(DISK):
-				update_disk(); break;
+					update_disk(); break;
 			case(MAIL):
-				update_mail(); break;
+					update_mail(); break;
 			case(MUSIC):
-				update_music(); break;
+					update_music(); break;
 			case(MIC):
-				update_mic(); break;
+					update_mic(); break;
 			case(RELOAD):
-				update_bar(); break;
+					update_bar(); break;
+			case(MEM):
+					update_mem(); break;
+			case(VOLUME):
+					update_volume(VOLUME); break;
+			case(UP):
+					update_volume(UP); break;
+			case(DOWN):
+					update_volume(DOWN); break;
+			case(TOGGLE):
+					update_volume(TOGGLE); break;
+			default:
+					printf("not found %d\n", reload); break;
 			}
 		}
 	}

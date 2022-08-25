@@ -7,8 +7,12 @@ disk () {
 }
 
 mic() {
-	pacmd list-sources | grep -A 15 '* index' | grep -qw 'muted: no' &&\
-		mic="mic" || mic=""
+	if pactl get-source-mute @DEFAULT_SOURCE@ | grep -q yes
+	then
+		mic=""
+	else
+		mic="mic"
+	fi
 	printf "%s" "$mic"
 }
 
@@ -21,16 +25,21 @@ temp () {
 }
 
 network () {
-	network=$(wpa_cli status | grep -E '^ssid' | sed 's/ssid=//')
-	[ -z "$network" ] && network=$(iwctl station wlan0 show | awk '/Connected network/{print $3}')
+	network=$(iwctl station wlan0 show | awk '/Connected network/{print $3}')
+	[ -z "$network" ] && network=$(wpa_cli status | grep -E '^ssid' | sed 's/ssid=//')
 	[ -z "$network" ] && network="" && exit 0
 	printf "%s" "$network"
 	exit
 }
 
 volume () {
-	volume=$(pamixer --get-volume-human)
-	[ "$volume" = "muted" ] && volume="" && exit
+	if pactl get-sink-mute @DEFAULT_SINK@ | grep -qi yes
+	then
+		volume=""
+		exit
+	else
+		volume=$(pactl get-sink-volume @DEFAULT_SINK@ | cut -d ' ' -f6)
+	fi
 	printf "%s" "$volume"
 }
 
@@ -75,5 +84,9 @@ music () {
 	fi
 	printf "%s" "$music_status"
 }	
+
+mem () {
+	free -h | awk '/Mem:/{ printf $3 }'
+}
 
 $1
