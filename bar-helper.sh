@@ -38,7 +38,8 @@ volume () {
 		volume=""
 		exit
 	else
-		volume=$(pactl get-sink-volume @DEFAULT_SINK@ | cut -d ' ' -f6)
+		volume=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -Eo "[0-9]+%" |\
+			head -n1)
 	fi
 	printf "%s" "$volume"
 }
