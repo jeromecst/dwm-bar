@@ -4,10 +4,10 @@ LIBS=-lX11
 
 all: dwm-bar update-dwm-bar
 
-dwm-bar: dwm-bar.o
+dwm-bar: dwm-bar.o bar.o
 	$(CC) $(CFLAGS) -o $@ $? $(LIBS)
 
-update-dwm-bar: update-dwm-bar.o
+update-dwm-bar: update-dwm-bar.o bar.o
 	$(CC) $(CFLAGS) -o $@ $? $(LIBS)
 
 clean:

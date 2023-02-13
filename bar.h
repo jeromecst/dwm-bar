@@ -1,14 +1,9 @@
 #ifndef BARH
 #define BARH
 
-#include <X11/Xutil.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <stdlib.h>
 
-#define FIFO "/tmp/bar.fifo"
+#define FIFO "/tmp/dwm-bar.fifo"
 #define HASHSIZE 4096
 #define SIZE 128
 #define BAR_SIZE 512
@@ -33,80 +28,9 @@
 #define DOWN 13
 #define TOGGLE 14
 
-unsigned int flag_to_idx(unsigned short a)
-{
-	for (unsigned int i = 0; i < sizeof(unsigned short) * 8; i++) {
-		if(a & 1) return i;
-		a >>= 1;
-	}
-	return 0;
-}
-
-int system_pipe(const char *file, char *const argv[], char *return_buffer)
-{
-	static int fd[2];
-	int return_value;
-
-	if (return_buffer != NULL) {
-		if (pipe(fd) != 0)
-			perror("pipe");
-	}
-	if (fork() == 0) {
-		if (return_buffer != NULL) {
-			close(fd[0]);
-			if (dup2(fd[1], STDOUT_FILENO) == -1)
-				perror("dup2");
-		}
-		else {
-			close(0);
-			close(1);
-			close(2);
-		}
-		if (execv(file, argv) == -1) {
-			perror("execv");
-			exit(1);
-		}
-	}
-	wait(&return_value);
-	if (return_buffer != NULL) {
-		close(fd[1]);
-		memset(return_buffer, '\0', SIZE);
-		if (read(fd[0], return_buffer, SIZE) < 0)
-			perror("read");
-		close(fd[0]);
-	}
-	return return_value;
-}
-
-int timeout(int fd, fd_set *fds, struct timeval *tval, time_t *rtime)
-{
-	tval->tv_sec = R_INTERVAL - *rtime % R_INTERVAL;
-	tval->tv_usec = 0;
-	FD_ZERO(fds);
-	FD_SET(fd, fds);
-	return select(fd + 1, fds, NULL, NULL, tval);
-}
-
-int xsetroot(const char *bar_name)
-{
-	static Display *dpy;
-	static int screen;
-	static Window root;
-
-	dpy = XOpenDisplay(NULL);
-	if (!dpy) {
-		fprintf(stderr, "unable to open display '%s'\n",
-				XDisplayName (NULL));
-		return 1;
-	}
-	screen = DefaultScreen(dpy);
-	root = RootWindow(dpy, screen);
-
-	/* Handle set name */
-	if (bar_name)
-		XStoreName(dpy, root, bar_name);
-	XCloseDisplay(dpy);
-	return 0;
-}
+unsigned int flag_to_idx(unsigned short a);
+int system_pipe(const char *file, char *const argv[], char *return_buffer);
+int timeout(int fd, fd_set *fds, struct timeval *tval, time_t *rtime);
+int xsetroot(const char *bar_name);
 
 #endif
